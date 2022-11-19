@@ -2,13 +2,27 @@ version: "3.6"
 
 services:
 
-  timeseriesdb:
-    container_name: timeseriesdb
-    build:
-      context: influxdb
+  influxdb:
+    image: influxdb:2.5.1-alpine
+    volumes:
+      - ./influxdb/data/svl/influxdb2:/var/lib/influxdb2:rw
+    env_file:
+      - ./influxdb/.env
     ports:
       - 8086:8086
-    volumes:
-      - ./influxdb/data/influxdb:/var/lib/influxdb \
-      - ./influxdb/data/influxdb2:/var/lib/influxdb2 \
     #restart: always
+
+  alphavantage_scraper:
+    container_name: alphavantage_scraper
+    build:
+      context: ./alphavantage_scraper
+      dockerfile: Dockerfile
+    volumes:
+      - .:/src
+    env_file:
+      - ./alphavantage_scraper/.env
+    depends_on:
+      - influxdb
+
+volumes:
+  influxdb2:
