@@ -32,3 +32,9 @@ Web interface `<HOST URL>:8080/`
 
 ![dash app](/res/20221120_dash_app.PNG)
 
+### Debug  
+Show dash server logs:  
+```
+$ docker ps  
+$ docker logs -f 1e3  
+```

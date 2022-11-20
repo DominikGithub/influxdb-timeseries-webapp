@@ -71,16 +71,13 @@ def get_influxdb__faultcode_table(symbol, metric, start_date, end_date):
                         |> range(start: -6mo)
                         |> filter(fn: (r) => r.symbol == "{symbol}" and r._field == "{metric.lower()}")
                         |> filter(fn: (r) => r._time >= time(v: "{pyar_ts_start.format('YYYY-MM-DD')}T00:00:00.000Z") and r._time <= time(v: "{pyar_ts_stop.format('YYYY-MM-DD')}T23:59:59.000Z") )
-                        |> keep(columns: ["_time", "_field", "_value", "symbol"])
-                        //|> limit(n: 3, offset: 10)
-                    '''
+                        |> keep(columns: ["_time", "_field", "_value", "symbol"])'''
     try:
         flux_client = InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG)
         df = influxdb_get_df(flux_client, flux_query, INFLUXDB_ORG)
 
-        # if result empty
-        if df.shape[0] <= 0: 
-            return html.Plaintext(['No data available'])
+        # if empty
+        if df.shape[0] <= 0: return html.Plaintext(['No data available'])
 
         df = df.sort_values(by=['_time'], ascending=False)
         return dash_table.DataTable(df.to_dict('records')) #, 
@@ -125,6 +122,7 @@ app.layout = html.Div([
                     start_date = date.today() - timedelta(days=1), 
                     end_date = date.today() 
                 ),
+                dcc.LogoutButton(),
                 ], style={'display':'flex', 'alignItems':'center', 'columnGap':'1%', 'marginTop':'2px'}),
                 dcc.Loading(
                         id="loading-influxdb-stocks-table",
@@ -137,4 +135,4 @@ app.layout = html.Div([
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0', port=8080)
+    app.run_server(debug=False, host='0.0.0.0', port=8080)
