@@ -1,4 +1,4 @@
-# tools-influxdb-vuejs
+# tools-influxdb-dash
 
 Collect historical stock data from Alphavanteage API and store into Influxdb timeseries db.  
 
