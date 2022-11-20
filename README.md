@@ -20,6 +20,8 @@ NOTE: temp fix for initial access token missing.
 ## Influxdb  
 Timerseries database 2.5.1  
 Web interface `<HOST URL>:8086/`  
+![influxdb notebook](/res/20221120_influxdb.PNG)
+
 
 ## Python scraper  
 Collecting time series data from REST API  
