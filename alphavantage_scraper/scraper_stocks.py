@@ -46,7 +46,7 @@ def write_to_influxdb(df, symbol="IBM", metric="open"):
 	Write data into timeseries db.
 	"""
 	with InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_API_TOKEN, org=INFLUXDB_ORG) as _client:
-		with _client.write_api(write_options=WriteOptions(batch_size=100,
+		with _client.write_api(write_options=WriteOptions(batch_size=500,
 															flush_interval=2_000,
 															jitter_interval=2_000,
 															retry_interval=5_000,

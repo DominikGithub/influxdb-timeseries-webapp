@@ -72,28 +72,22 @@ def get_influxdb__faultcode_table(symbol, metric, start_date, end_date):
                         |> filter(fn: (r) => r.symbol == "{symbol}" and r._field == "{metric.lower()}")
                         |> filter(fn: (r) => r._time >= time(v: "{pyar_ts_start.format('YYYY-MM-DD')}T00:00:00.000Z") and r._time <= time(v: "{pyar_ts_stop.format('YYYY-MM-DD')}T23:59:59.000Z") )
                         |> keep(columns: ["_time", "_field", "_value", "symbol"])
+                        //|> limit(n: 3, offset: 10)
                     '''
     try:
         flux_client = InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG)
         df = influxdb_get_df(flux_client, flux_query, INFLUXDB_ORG)
-        
-        print(df)
 
         # if result empty
         if df.shape[0] <= 0: 
             return html.Plaintext(['No data available'])
 
-
         df = df.sort_values(by=['_time'], ascending=False)
-        df = df.set_index('_time')
-        
-        print(df)
-        
-        return dash_table.DataTable(df.to_dict('records'), 
-                            editable=False,
-                            filter_action="native",
+        return dash_table.DataTable(df.to_dict('records')) #, 
+                            # editable=False,
+                            # filter_action="native",
                             # columns=[
-                            #     {"name": ['metric'], "id": "metric", "hideable": True},
+                            #     {"name": ['metric'], "_time": "metric", "hideable": True},
                             # ],
                             # style_data={'whiteSpace': 'normal','height': 'auto',},
                             # style_table={'height': '100%', 'overflowY': 'auto', 'padding':'10px'},
@@ -105,7 +99,7 @@ def get_influxdb__faultcode_table(symbol, metric, start_date, end_date):
                             #                             'backgroundColor': 'yellow',
                             #                             'column_id': 'metric',
                             #                         }]
-                            )
+                            # )
     finally:
         flux_client.close()
 
