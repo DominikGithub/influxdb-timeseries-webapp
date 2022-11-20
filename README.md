@@ -23,3 +23,7 @@ Web interface `<HOST URL>:8086/`
 ## Python scraper  
 Collecting time series data from REST API  
 
+## Dash web app  
+Web interface for data visualization  
+Web interface <HOST URL>:8080/
+

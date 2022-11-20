@@ -22,5 +22,19 @@ services:
     depends_on:
       - influxdb
 
+  dash_app:
+    container_name: dash_app
+    build:
+      context: ./dash_app
+      dockerfile: Dockerfile
+    env_file:
+      - ./dash_app/.env
+    ports:
+      - 8080:8080
+    depends_on:
+      - influxdb
+
+
+
 volumes:
   influxdb2:

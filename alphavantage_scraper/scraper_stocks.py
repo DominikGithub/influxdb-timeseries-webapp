@@ -17,6 +17,7 @@ except: pass
 av_url = "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval={interval}&outputsize=full&apikey={token}"
 AV_API_TOKEN = os.environ['ALPHAVANTAGE_API_TOKEN']
 
+INFLUXDB_URL="http://influxdb:8086"
 INFLUXDB_ORG = os.environ['INFLUXDB_ORG']
 INFLUXDB_API_TOKEN = os.environ['INFLUXDB_API_TOKEN']
 INFLUXDB_BUCKET_STOCKS = os.environ['INFLUXDB_BUCKET_STOCKS']
@@ -44,7 +45,7 @@ def write_to_influxdb(df, symbol="IBM", metric="open"):
 	"""
 	Write data into timeseries db.
 	"""
-	with InfluxDBClient(url="http://influxdb:8086", token=INFLUXDB_API_TOKEN, org=INFLUXDB_ORG) as _client:
+	with InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_API_TOKEN, org=INFLUXDB_ORG) as _client:
 		with _client.write_api(write_options=WriteOptions(batch_size=100,
 															flush_interval=2_000,
 															jitter_interval=2_000,
@@ -55,7 +56,7 @@ def write_to_influxdb(df, symbol="IBM", metric="open"):
 
 			for ts, row in df.iterrows():
 				timestamp = 'T'.join(ts.split(" "))
-				print(symbol, timestamp, metric, row[metric])
+				# print(symbol, timestamp, metric, row[metric])
 				point = Point("stock") \
 							.field(metric, float(row[metric])) \
 							.tag("symbol", symbol) \
