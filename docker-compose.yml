@@ -10,15 +10,13 @@ services:
       - ./influxdb/.env
     ports:
       - 8086:8086
-    #restart: always
+    restart: on-failure
 
   alphavantage_scraper:
     container_name: alphavantage_scraper
     build:
       context: ./alphavantage_scraper
       dockerfile: Dockerfile
-    volumes:
-      - .:/src
     env_file:
       - ./alphavantage_scraper/.env
     depends_on:
