@@ -22,6 +22,24 @@ INFLUXDB_API_TOKEN = os.environ['INFLUXDB_API_TOKEN']
 INFLUXDB_BUCKET_STOCKS = os.environ['INFLUXDB_BUCKET_STOCKS']
 
 
+def load_data(comp_smybol="IBM", freq="1min"):
+	"""
+	Load stock data from rest API.
+	"""
+	r = requests.get(av_url.format(symbol=comp_smybol, interval=freq, token=AV_API_TOKEN))
+	pyld = r.json()
+
+	print('keys', pyld.keys())
+	print('Meta Data', pyld['Meta Data'])
+
+	ser_key = f"Time Series ({freq})"
+	ser = pyld[ser_key]
+
+	df = pd.DataFrame(ser).transpose()
+	df = df.rename(lambda c: c.split(" ")[1], axis='columns')
+	return df
+
+
 def write_to_influxdb(df, symbol="IBM", metric="open"):
 	"""
 	Write data into timeseries db.
@@ -45,29 +63,14 @@ def write_to_influxdb(df, symbol="IBM", metric="open"):
 				_write_client.write(bucket=INFLUXDB_BUCKET_STOCKS, record=point)
 
 
-def load_data(comp_smybol="IBM", freq="1min"):
-	"""
-	Load stock data from rest API.
-	"""
-	r = requests.get(av_url.format(symbol=comp_smybol, interval=freq, token=AV_API_TOKEN))
-	pyld = r.json()
-
-	print('keys', pyld.keys())
-	print('Meta Data', pyld['Meta Data'])
-
-	ser_key = f"Time Series ({freq})"
-	ser = pyld[ser_key]
-
-	df = pd.DataFrame(ser).transpose()
-	df = df.rename(lambda c: c.split(" ")[1], axis='columns')
+if __name__ == "__main__":
+	comp_smybol = 'IBM'
+	# get stock data
+	df = load_data(comp_smybol)
 	print(df)
-
+	
 	# write data to influxdb
 	for metric in df.columns:
 		print("writing", metric)
 		write_to_influxdb(df, symbol=comp_smybol, metric=metric)
-
-
-if __name__ == "__main__":
-	load_data()
 
