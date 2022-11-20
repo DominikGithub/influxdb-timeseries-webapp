@@ -7,6 +7,7 @@ Collect historical stock data from Alphavanteage API and store into Influxdb tim
 Set `.env` file credentials  
 * alphavantage_scraper/.env
 * influxdb/.env  
+* dash_app/.env  
 ```
 $ docker-compose up --build --detach  
 ```
@@ -25,5 +26,7 @@ Collecting time series data from REST API
 
 ## Dash web app  
 Web interface for data visualization  
-Web interface <HOST URL>:8080/
+Web interface `<HOST URL>:8080/`  
+
+![dash app](/res/20221120_dash_app.PNG)
 
