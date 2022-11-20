@@ -122,7 +122,7 @@ app.layout = html.Div([
                     start_date = date.today() - timedelta(days=1), 
                     end_date = date.today() 
                 ),
-                dcc.LogoutButton(),
+                # dcc.LogoutButton(),       # NOTE not recommended to use anymore!
                 ], style={'display':'flex', 'alignItems':'center', 'columnGap':'1%', 'marginTop':'2px'}),
                 dcc.Loading(
                         id="loading-influxdb-stocks-table",
