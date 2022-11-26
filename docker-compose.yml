@@ -34,7 +34,15 @@ services:
     depends_on:
       - influxdb
 
-
+  # blobstorage:
+  #   image: minio/minio:RELEASE.2022-11-17T23-20-09Z.fips
+  #   #volumes:
+  #   #  - ./blobstore/data:/
+  #   env_file:
+  #     - ./blobstore/.env
+  #   ports:
+  #     - 9000:9000
+  #   restart: on-failure
 
 volumes:
   influxdb2:

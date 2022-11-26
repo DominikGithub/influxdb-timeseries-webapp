@@ -19,8 +19,20 @@ NOTE: temp fix for initial access token missing.
 
 ## Influxdb  
 Timerseries database 2.5.1  
+Influx [docs](https://docs.influxdata.com/influxdb/v2.5/install/?t=Docker)  
 Web interface `<HOST URL>:8086/`  
 ![influxdb notebook](/res/20221120_influxdb.PNG)
+
+### Development setup  
+Start as standalone host instance from witin /influxdb dir:  
+```  
+docker run \
+    --name influxdb \
+    -p 8086:8086 \
+    --volume $PWD:/var/lib/influxdb2 \
+    influxdb:2.5.1
+```
+
 
 
 ## Python scraper  

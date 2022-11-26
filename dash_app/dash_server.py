@@ -10,7 +10,8 @@ import arrow
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 import pandas as pd
-from dash import Dash
+import plotly.express as px
+import plotly.graph_objs as go
 import dash_auth
 from dash import dcc
 from dash import Dash, dash_table, dcc, html
@@ -30,10 +31,10 @@ auth = dash_auth.BasicAuth(app, {os.environ['ui_user']:os.environ['ui_password']
 
 # influxdb
 INFLUXDB_URL = "http://influxdb:8086"
+# INFLUXDB_URL="http://localhost:8086"
 INFLUXDB_BUCKET_STOCKS = os.environ['INFLUXDB_BUCKET_STOCKS']
 INFLUXDB_ORG = os.environ['INFLUXDB_ORG']
 INFLUXDB_TOKEN = os.environ['INFLUXDB_API_TOKEN']
-
 
 def influxdb_get_df(flux_client, flux_query, org):
     """
@@ -54,7 +55,7 @@ def influxdb_get_df(flux_client, flux_query, org):
 
 
 @app.callback(
-    Output('influxdb-data-table', 'children'),
+    Output('influxdb-data-container', 'children'),
     [Input('id-influxdb-symbol-dropdown', 'value'),
      Input('id-influxdb-metric-dropdown', 'value'),
      Input(component_id='influxdb-stocks-date-picker', component_property='start_date'),
@@ -69,7 +70,8 @@ def get_influxdb__faultcode_table(symbol, metric, start_date, end_date):
     
     flux_query = f'''from(bucket: "{INFLUXDB_BUCKET_STOCKS}") 
                         |> range(start: -6mo)
-                        |> filter(fn: (r) => r.symbol == "{symbol}" and r._field == "{metric.lower()}")
+                        //|> filter(fn: (r) => r.symbol == "{symbol}" and r._field == "{metric.lower()}")
+                        |> filter(fn: (r) => r.symbol == "{symbol}")
                         |> filter(fn: (r) => r._time >= time(v: "{pyar_ts_start.format('YYYY-MM-DD')}T00:00:00.000Z") and r._time <= time(v: "{pyar_ts_stop.format('YYYY-MM-DD')}T23:59:59.000Z") )
                         |> keep(columns: ["_time", "_field", "_value", "symbol"])'''
     try:
@@ -78,25 +80,63 @@ def get_influxdb__faultcode_table(symbol, metric, start_date, end_date):
 
         # if empty
         if df.shape[0] <= 0: return html.Plaintext(['No data available'])
-
         df = df.sort_values(by=['_time'], ascending=False)
-        return dash_table.DataTable(df.to_dict('records')) #, 
-                            # editable=False,
-                            # filter_action="native",
-                            # columns=[
-                            #     {"name": ['metric'], "_time": "metric", "hideable": True},
-                            # ],
-                            # style_data={'whiteSpace': 'normal','height': 'auto',},
-                            # style_table={'height': '100%', 'overflowY': 'auto', 'padding':'10px'},
-                            # style_data_conditional=[{
-                            #                             'if': {
-                            #                                 'filter_query': '{metric} = "open"',
-                            #                                 'column_id': 'metric'
-                            #                             },
-                            #                             'backgroundColor': 'yellow',
-                            #                             'column_id': 'metric',
-                            #                         }]
-                            # )
+        print(df)
+
+        ###### plots
+        graph_lst = []
+
+        # table
+        dft = df.pivot(index='_time', columns='_field', values=['_value'])
+
+        dft['date'] = dft.index
+        dft.columns = dft.columns.get_level_values(1)
+        print(dft)
+
+        ft = go.Figure(data=[
+            go.Table(
+                header=dict(
+                    values=dft.columns,
+                    font=dict(size=12),
+                    align="left"
+                ),
+                cells=dict(
+                    values=[dft[k].tolist() for k in dft.columns], # [1:]
+                    align="left")
+            )
+        ])
+        graph_lst.append(dcc.Graph(figure=ft, style={'flex-grow':'2', 'align-items':'flex-start'}))
+
+
+        # volume
+        metric_name = 'volume'
+        mdf = df[df['_field'] == metric_name]
+        fv = go.Figure(data=[
+            go.Scatter(x=mdf['_time'], y=mdf['_value'],
+                        mode='lines',
+                        showlegend=True,
+                        text=mdf['_field'],
+                        name=metric_name)
+        ])
+        graph_lst.append(dcc.Graph(figure=fv, style={'flex-grow':'2', 'align-items':'flex-start'}))
+
+        # open, low, high, close
+        fig = go.Figure()
+        for metric_name in df['_field'].unique():
+            if metric_name == 'volume': continue
+            print(metric_name)
+
+            mdf = df[df['_field'] == metric_name]
+            fig.add_trace(go.Scatter(x=mdf['_time'], y=mdf['_value'],
+                        mode='lines',
+                        showlegend=True,
+                        name=metric_name))
+        graph_lst.append(dcc.Graph(figure=fig, style={'flex-grow':'2', 'align-items':'flex-start'}))
+
+        return html.Div([
+                html.Div([dash_table.DataTable(df.to_dict('records'))], style={'flex-grow':'1'}),
+                html.Div(graph_lst, style={'flex-grow':'2', 'align-items':'flex-start'}),
+        ], style={'display':'flex', 'flex-direction':'row', 'justify-content':'space-evenly', 'align-items':'flex-start'})
     finally:
         flux_client.close()
 
@@ -127,7 +167,7 @@ app.layout = html.Div([
                 dcc.Loading(
                         id="loading-influxdb-stocks-table",
                         type="circle",
-                        children=html.Div(id="influxdb-data-table")
+                        children=html.Div(id="influxdb-data-container")
                 )
           ])
     ])

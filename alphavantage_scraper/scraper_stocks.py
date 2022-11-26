@@ -18,6 +18,7 @@ av_url = "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol
 AV_API_TOKEN = os.environ['ALPHAVANTAGE_API_TOKEN']
 
 INFLUXDB_URL="http://influxdb:8086"
+# INFLUXDB_URL="http://influxdb:8086"
 INFLUXDB_ORG = os.environ['INFLUXDB_ORG']
 INFLUXDB_API_TOKEN = os.environ['INFLUXDB_API_TOKEN']
 INFLUXDB_BUCKET_STOCKS = os.environ['INFLUXDB_BUCKET_STOCKS']
