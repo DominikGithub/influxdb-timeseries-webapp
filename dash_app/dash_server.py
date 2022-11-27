@@ -93,16 +93,27 @@ def get_influxdb__faultcode_table(symbol, metric, start_date, end_date):
         dft.columns = dft.columns.get_level_values(1)
         print(dft)
 
+        headerColor = 'grey'
+        # rowEvenColor = 'lightgrey'
+        # rowOddColor = 'white'
+
         ft = go.Figure(data=[
+            # plotly table docs: https://plotly.com/python/table
             go.Table(
                 header=dict(
                     values=dft.columns,
+                    line_color='darkslategray',
+                    fill_color=headerColor,
                     font=dict(size=12),
                     align="left"
                 ),
+                #columnorder = [1,2],
+                columnwidth = [100,100,100,150,200,100],
                 cells=dict(
                     values=[dft[k].tolist() for k in dft.columns], # [1:]
-                    align="left")
+                    # fill=dict(color=['paleturquoise', 'white']),
+                    # fill_color=[[rowOddColor,rowEvenColor,rowOddColor,rowEvenColor,rowOddColor]*dft.shape[0]],
+                    align="left")   
             )
         ])
         graph_lst.append(dcc.Graph(figure=ft, style={'flex-grow':'2', 'align-items':'flex-start'}))
