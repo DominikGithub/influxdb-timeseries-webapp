@@ -1,6 +1,6 @@
-# tools-influxdb-dash
+# Influxdb Dash 
 
-Collect historical stock data from Alphavanteage API and store into Influxdb timeseries db.  
+Collect historical stock data from Alphavanteage API and store into Influxdb timeseries db and visualize as web app.  
 
 
 ### Setup & run  
@@ -17,14 +17,14 @@ NOTE: temp fix for initial access token missing.
 2) Restart scraper script  
 
 
-## Influxdb  
-Timerseries database 2.5.1  
-Influx [docs](https://docs.influxdata.com/influxdb/v2.5/install/?t=Docker)  
-Web interface `<HOST URL>:8086/`  
-![influxdb notebook](/res/20221120_influxdb.PNG)
+## Influxdb 
+Timerseries database 2.5.1 
+Influx [docs](https://docs.influxdata.com/influxdb/v2.5/install/?t=Docker) 
+Web interface `<HOST URL>:8086/` 
+![influxdb notebook](/res/20221120_influxdb.PNG) 
 
-### Development setup  
-Start as standalone host instance from witin /influxdb dir:  
+### Development setup 
+Start as standalone host instance from witin /influxdb dir: 
 ```  
 docker run \
     --name influxdb \
@@ -33,20 +33,12 @@ docker run \
     influxdb:2.5.1
 ```
 
+## Python data scraper 
+Collecting time series data from REST API 
 
+## Dash web app 
+Web interface for data visualization 
+Web interface `<HOST URL>:8080/` 
 
-## Python scraper  
-Collecting time series data from REST API  
+![dash app](/res/20230520_dash_app.PNG) 
 
-## Dash web app  
-Web interface for data visualization  
-Web interface `<HOST URL>:8080/`  
-
-![dash app](/res/20221120_dash_app.PNG)
-
-### Debug  
-Show dash server logs:  
-```
-$ docker ps  
-$ docker logs -f 1e3  
-```
